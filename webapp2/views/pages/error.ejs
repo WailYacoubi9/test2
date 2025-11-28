@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <main class="container">
+            <div class="hero">
+                <div class="hero-content">
+                    <div class="status-icon" style="font-size: 5rem; margin-bottom: 2rem;">❌</div>
+                    <h1 class="hero-title">
+                        <%= title || 'Erreur' %>
+                    </h1>
+                    <p class="hero-description">
+                        <%= message || 'Une erreur est survenue' %>
+                    </p>
+                    <div class="hero-actions">
+                        <a href="/" class="btn btn-primary btn-lg">
+                            <span class="icon">🏠</span>
+                            Retour à l'accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <%- include('../partials/footer') %>
+</body>
+
+</html>

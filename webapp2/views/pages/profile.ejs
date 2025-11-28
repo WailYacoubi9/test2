@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <main class="container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    Mon Profil
+                </h1>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="/" class="btn btn-secondary">
+                        Retour
+                    </a>
+                </div>
+            </div>
+
+            <div class="profile-layout">
+                <!-- Carte utilisateur -->
+                <div class="card profile-card">
+                    <div class="profile-avatar">
+                        <div class="avatar-circle">
+                            <%= userinfo.preferred_username ? userinfo.preferred_username.charAt(0).toUpperCase() : 'U'
+                                %>
+                        </div>
+                    </div>
+                    <h2 class="profile-name">
+                        <%= userinfo.name || userinfo.preferred_username %>
+                    </h2>
+                    <p class="profile-email">
+                        <%= userinfo.email %>
+                    </p>
+                    <div class="profile-badge">
+                        <%= userinfo.email_verified ? '✅ Email vérifié' : '⚠️ Email non vérifié' %>
+                    </div>
+                </div>
+
+                <!-- Informations détaillées -->
+                <div class="card">
+                    <h3 class="card-title">Informations personnelles</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>ID Utilisateur</label>
+                            <span class="info-value monospace">
+                                <%= userinfo.sub %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <label>Nom d'utilisateur</label>
+                            <span class="info-value">
+                                <%= userinfo.preferred_username %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <label>Email</label>
+                            <span class="info-value">
+                                <%= userinfo.email %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <label>Nom complet</label>
+                            <span class="info-value">
+                                <%= userinfo.name || 'Non renseigné' %>
+                            </span>
+                        </div>
+                        <% if (userinfo.given_name) { %>
+                            <div class="info-item">
+                                <label>Prénom</label>
+                                <span class="info-value">
+                                    <%= userinfo.given_name %>
+                                </span>
+                            </div>
+                            <% } %>
+                                <% if (userinfo.family_name) { %>
+                                    <div class="info-item">
+                                        <label>Nom de famille</label>
+                                        <span class="info-value">
+                                            <%= userinfo.family_name %>
+                                        </span>
+                                    </div>
+                                    <% } %>
+                    </div>
+                </div>
+
+                <!-- Informations de session -->
+                <div class="card">
+                    <h3 class="card-title">
+                        <span class="icon">🔑</span>
+                        Informations de session
+                    </h3>
+                    <div class="session-info">
+                        <div class="session-item <%= isExpired ? 'expired' : 'valid' %>">
+                            <label>Statut du token</label>
+                            <span class="session-status">
+                                <%= isExpired ? '❌ Expiré' : '✅ Valide' %>
+                            </span>
+                        </div>
+                        <div class="session-item">
+                            <label>Expire dans</label>
+                            <span class="session-value">
+                                <%= isExpired ? 'Expiré' : expiresIn + ' secondes' %>
+                            </span>
+                        </div>
+                        <div class="session-item">
+                            <label>Token d'accès</label>
+                            <span class="session-value">
+                                <%= tokenSet.access_token ? '✅ Présent' : '❌ Absent' %>
+                            </span>
+                        </div>
+                        <div class="session-item">
+                            <label>Token d'identité</label>
+                            <span class="session-value">
+                                <%= tokenSet.id_token ? '✅ Présent' : '❌ Absent' %>
+                            </span>
+                        </div>
+                        <div class="session-item">
+                            <label>Refresh token</label>
+                            <span class="session-value">
+                                <%= tokenSet.refresh_token ? '✅ Présent' : '❌ Absent' %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <% if (isExpired) { %>
+                        <div class="alert alert-warning">
+                            ⚠️ Votre session a expiré. Veuillez vous reconnecter.
+                        </div>
+                        <% } %>
+
+                            <!-- Section de gestion des tokens -->
+                            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                                <h4 style="margin-bottom: 1rem;">Actions de sécurité</h4>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    <button onclick="revokeTokens()" class="btn btn-logout">
+                                        Révoquer les tokens
+                                    </button>
+                                    <a href="/auth/revoke-and-logout" class="btn"
+                                        style="background: var(--danger); color: white;">
+                                        Révoquer et déconnecter
+                                    </a>
+                                </div>
+                                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 1rem;">
+                                    La révocation rend immédiatement invalides tous vos tokens actifs.
+                                </p>
+                            </div>
+                </div>
+            </div>
+        </main>
+
+        <%- include('../partials/footer') %>
+
+            <script src="/js/main.js"></script>
+            <script>
+                // Fonction pour révoquer les tokens via l'API
+                async function revokeTokens() {
+                    if (!confirm('Êtes-vous sûr de vouloir révoquer votre token ?\n\nCela invalidera immédiatement votre session actuelle.')) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/auth/revoke', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            alert('Token révoqué avec succès. Vous allez être redirigé vers l\'accueil.');
+                            window.location.href = '/';
+                        } else {
+                            alert('Erreur lors de la révocation: ' + data.error);
+                        }
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        alert('Erreur de connexion lors de la révocation');
+                    }
+                }
+            </script>
+</body>
+
+</html>

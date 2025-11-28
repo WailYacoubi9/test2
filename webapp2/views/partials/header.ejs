@@ -1,0 +1,31 @@
+<header class="header">
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <span class="brand-text">Projet CIS</span>
+            </a>
+
+            <div class="nav-menu">
+                <% if (isAuthenticated) { %>
+                    <a href="/profile" class="nav-link">
+                        <span class="icon">👤</span>
+                        Profil
+                    </a>
+                    <a href="/devices" class="nav-link">
+                        <span class="icon">📱</span>
+                        Appareils
+                    </a>
+                    <div class="nav-user">
+                        <span class="user-name">
+                            <%= user.preferred_username %>
+                        </span>
+                        <a href="/logout" class="btn btn-logout">Déconnexion</a>
+                    </div>
+                    <% } else { %>
+                        <a href="/login" class="btn btn-primary">Se connecter</a>
+                        <a href="/register" class="btn btn-secondary">Créer un compte</a>
+                        <% } %>
+            </div>
+        </div>
+    </nav>
+</header>

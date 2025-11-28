@@ -1,0 +1,98 @@
+{
+    "realm": "projetcis",
+    "enabled": true,
+    "registrationAllowed": true,
+    "registrationEmailAsUsername": false,
+    "rememberMe": true,
+    "resetPasswordAllowed": true,
+    "loginWithEmailAllowed": true,
+    "duplicateEmailsAllowed": false,
+    "sslRequired": "external",
+    "accessTokenLifespan": 420,
+    "clients": [
+        {
+            "clientId": "webapp",
+            "name": "WebApp Client",
+            "description": "Client pour l'application web avec Standard Flow",
+            "enabled": true,
+            "clientAuthenticatorType": "client-secret",
+            "redirectUris": [
+                "https://localhost:3000/auth/callback",
+                "https://localhost:3000/*"
+            ],
+            "webOrigins": [
+                "https://localhost:3000"
+            ],
+            "attributes": {
+                "post.logout.redirect.uris": "https://localhost:3000/*",
+                "pkce.code.challenge.method": "S256"
+            },
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "serviceAccountsEnabled": false,
+            "publicClient": false,
+            "protocol": "openid-connect",
+            "fullScopeAllowed": true,
+            "defaultClientScopes": [
+                "web-origins",
+                "acr",
+                "profile",
+                "roles",
+                "email"
+            ],
+            "optionalClientScopes": [
+                "address",
+                "phone",
+                "offline_access",
+                "microprofile-jwt"
+            ]
+        },
+        {
+            "clientId": "devicecis",
+            "name": "Device Application",
+            "description": "Application PC avec Device Flow",
+            "enabled": true,
+            "clientAuthenticatorType": "none",
+            "redirectUris": ["https://localhost:4000/*"],
+            "webOrigins": ["https://localhost:4000"],
+            "protocol": "openid-connect",
+            "standardFlowEnabled": false,
+            "implicitFlowEnabled": false,
+            "directAccessGrantsEnabled": false,
+            "publicClient": true,
+            "attributes": {
+                "oauth2.device.authorization.grant.enabled": "true",
+                "oauth2.device.polling.interval": "5"
+            },
+            "defaultClientScopes": [
+                "web-origins",
+                "acr",
+                "profile",
+                "roles",
+                "email"
+            ],
+            "optionalClientScopes": [
+                "address",
+                "phone",
+                "offline_access",
+                "microprofile-jwt"
+            ]
+        }
+    ],
+    "roles": {
+        "realm": [
+            {
+                "name": "user",
+                "description": "Utilisateur standard"
+            },
+            {
+                "name": "admin",
+                "description": "Administrateur"
+            }
+        ]
+    },
+    "defaultRoles": [
+        "user"
+    ]
+}

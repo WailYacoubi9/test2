@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <main class="container">
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <span class="gradient-text">Projet CIS</span><br>
+                        OAuth2 & OpenID Connect
+                    </h1>
+                    <p class="hero-description">
+                        Infrastructure sécurisée d'authentification et d'autorisation avec Keycloak
+                    </p>
+
+                    <% if (isAuthenticated) { %>
+                        <div class="status-card success">
+                            <div class="status-icon">✅</div>
+                            <div class="status-content">
+                                <h3>Bienvenue, <%= user.preferred_username %> !</h3>
+                                <p>Vous êtes actuellement connecté</p>
+                            </div>
+                        </div>
+                        <div class="hero-actions">
+                            <a href="/profile" class="btn btn-primary btn-lg">
+                                Voir mon profil
+                            </a>
+                            <a href="/devices" class="btn btn-secondary btn-lg">
+                                Gérer mes appareils
+                            </a>
+                            <a href="/logout" class="btn btn-logout btn-lg">
+                                Déconnexion
+                            </a>
+                        </div>
+                        <% } else { %>
+                            <div class="status-card">
+                                <div class="status-icon">🔒</div>
+                                <div class="status-content">
+                                    <h3>Non authentifié</h3>
+                                    <p>Connectez-vous pour accéder à votre espace personnel</p>
+                                </div>
+                            </div>
+                            <div class="hero-actions">
+                                <a href="/login" class="btn btn-primary btn-lg">
+                                    Se connecter
+                                </a>
+                                <a href="/register" class="btn btn-secondary btn-lg">
+                                    Créer un compte
+                                </a>
+                            </div>
+                            <% } %>
+                </div>
+            </section>
+
+            <section class="features">
+                <h2 class="section-title">Fonctionnalités</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔐</div>
+                        <h3>Standard Flow</h3>
+                        <p>Authentification via Authorization Code Flow avec PKCE pour une sécurité maximale</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Device Flow</h3>
+                        <p>Association d'appareils embarqués sans clavier via OAuth2 Device Authorization Grant</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3>Sécurité</h3>
+                        <p>Tokens JWT, PKCE, protection CSRF, et gestion sécurisée des sessions</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚙️</div>
+                        <h3>Keycloak IAM</h3>
+                        <p>Serveur d'identité et gestion des accès centralisé et professionnel</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <%- include('../partials/footer') %>
+
+            <script src="/js/main.js"></script>
+</body>
+
+</html>

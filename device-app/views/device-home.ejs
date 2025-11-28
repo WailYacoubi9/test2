@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device App - OAuth2 Device Flow</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 600px;
+            width: 90%;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .btn:hover {
+            background: #5a67d8;
+        }
+        .btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+        .btn-danger {
+            background: #f56565;
+        }
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        .btn-success {
+            background: #48bb78;
+        }
+        .status {
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .status.pending {
+            background: #fef5e7;
+            border: 2px solid #f39c12;
+        }
+        .status.authenticated {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+        .status.waiting {
+            background: #f0f4f8;
+            border: 2px solid #cbd5e0;
+        }
+        .code-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2d3748;
+            letter-spacing: 5px;
+            margin: 20px 0;
+            text-align: center;
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-code img {
+            max-width: 250px;
+            border: 2px solid #e2e8f0;
+            border-radius: 5px;
+            padding: 10px;
+            background: white;
+        }
+        .instructions {
+            background: #edf2f7;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 5px 0;
+            color: #4a5568;
+        }
+        .link {
+            color: #667eea;
+            word-break: break-all;
+            font-weight: bold;
+        }
+        .user-info {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .user-info h3 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ Application Device - OAuth2</h1>
+        
+        <div id="app-content">
+            <div class="status waiting">
+                <h2>En attente...</h2>
+                <p>Cliquez sur le bouton ci-dessous pour associer cet appareil à votre compte.</p>
+            </div>
+            
+            <button class="btn" onclick="startDeviceFlow()">
+                🚀 Démarrer l'authentification
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let pollingInterval = null;
+
+        async function startDeviceFlow() {
+            try {
+                const response = await fetch('/start-device-flow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAuthorizationInstructions(data.data);
+                    startStatusPolling();
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Impossible de démarrer le flow d\'authentification');
+            }
+        }
+
+        function showAuthorizationInstructions(flowData) {
+            document.getElementById('app-content').innerHTML = `
+                <div class="status pending">
+                    <h2>⏳ Autorisation en attente...</h2>
+                    <div class="spinner"></div>
+                </div>
+                
+                <div class="instructions">
+                    <h3>Instructions pour l'autorisation :</h3>
+                    <ol>
+                        <li>Sur un appareil avec navigateur, visitez :</li>
+                        <li class="link">https://localhost:3000/activate</li>
+                        <li>Entrez le code suivant :</li>
+                    </ol>
+                </div>
+                
+                <div class="code-display">
+                    ${flowData.user_code}
+                </div>
+                
+                ${flowData.qr_code ? `
+                <div class="qr-code">
+                    <h3>Ou scannez ce QR Code :</h3>
+                    <img src="${flowData.qr_code}" alt="QR Code">
+                </div>
+                ` : ''}
+                
+                <button class="btn btn-success" onclick="openBrowser()">
+                    🌐 Ouvrir dans le navigateur
+                </button>
+                
+                <p style="text-align: center; color: #718096; margin-top: 20px;">
+                    Ce code expire dans ${flowData.expires_in} secondes
+                </p>
+            `;
+        }
+
+        async function openBrowser() {
+            try {
+                await fetch('/open-browser', { method: 'POST' });
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        function startStatusPolling() {
+            if (pollingInterval) clearInterval(pollingInterval);
+            
+            pollingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/status');
+                    const data = await response.json();
+                    
+                    if (data.authenticated) {
+                        clearInterval(pollingInterval);
+                        showAuthenticated(data.user);
+                    } else if (!data.pending) {
+                        clearInterval(pollingInterval);
+                        showInitialState();
+                    }
+                } catch (error) {
+                    console.error('Erreur de polling:', error);
+                }
+            }, 2000); // Vérifier toutes les 2 secondes
+        }
+
+        function showAuthenticated(user) {
+            document.getElementById('app-content').innerHTML = `
+                <div class="status authenticated">
+                    <h2>✅ Appareil connecté avec succès !</h2>
+                </div>
+                
+                <div class="user-info">
+                    <h3>👤 Utilisateur connecté :</h3>
+                    <p><strong>Email:</strong> ${user.email || user.preferred_username || 'N/A'}</p>
+                    <p><strong>Nom:</strong> ${user.name || 'N/A'}</p>
+                    <p><strong>ID:</strong> ${user.sub}</p>
+                </div>
+                
+                <p style="text-align: center; color: #48bb78; margin: 20px 0;">
+                    🎉 Cet appareil peut maintenant accéder aux ressources autorisées !
+                </p>
+                
+                <button class="btn btn-danger" onclick="logout()">
+                    🚪 Déconnexion
+                </button>
+            `;
+        }
+
+        function showInitialState() {
+            location.reload();
+        }
+
+        async function logout() {
+            try {
+                await fetch('/logout', { method: 'POST' });
+                location.reload();
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        // Vérifier le statut initial
+        window.onload = async () => {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    showAuthenticated(data.user);
+                } else if (data.pending) {
+                    showAuthorizationInstructions({
+                        user_code: data.user_code,
+                        verification_uri: data.verification_uri
+                    });
+                    startStatusPolling();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        };
+    </script>
+</body>
+</html>
