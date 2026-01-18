@@ -31,3 +31,13 @@ build/
 certs/
 *.pem
 *.key
+
+# Tokens and secrets
+*.device-tokens.json
+*-tokens.json
+*.tokens
+
+# Temporary/junk files
+docker
+start-dev
+imports/
