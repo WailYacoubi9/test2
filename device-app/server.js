@@ -17,6 +17,7 @@ const CLIENT_ID = process.env.CLIENT_ID || 'devicecis';
 // Variables pour stocker l'état du device flow
 let deviceFlowState = null;
 let accessToken = null;
+let refreshToken = null;
 
 app.set('view engine', 'ejs');
 app.use(express.json());
@@ -118,15 +119,17 @@ async function startPolling() {
 
       // Autorisation réussie !
       accessToken = response.data.access_token;
+      refreshToken = response.data.refresh_token;
       console.log('✅ Autorisation accordée ! Token obtenu.');
-      
+      console.log('🔑 Refresh token stocké pour révocation future.');
+
       // Récupérer les infos utilisateur
       const userInfo = await getUserInfo(accessToken);
       console.log('👤 Utilisateur connecté:', userInfo.email || userInfo.preferred_username);
-      
+
       // Notifier la webapp si nécessaire (via webhook ou API)
       // await notifyWebApp(userInfo);
-      
+
       // Arrêter le polling
       clearInterval(pollInterval);
       deviceFlowState = null;
@@ -195,12 +198,54 @@ app.get('/status', async (req, res) => {
   }
 });
 
-// Déconnexion
-app.post('/logout', (req, res) => {
-  accessToken = null;
-  deviceFlowState = null;
-  console.log('👋 Déconnexion effectuée');
-  res.json({ success: true });
+// Déconnexion avec révocation du token
+app.post('/logout', async (req, res) => {
+  try {
+    // Si on a un refresh_token, le révoquer dans Keycloak
+    if (refreshToken) {
+      console.log('🔄 Révocation du refresh token dans Keycloak...');
+
+      const revokeEndpoint = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/revoke`;
+
+      try {
+        await axios.post(revokeEndpoint,
+          new URLSearchParams({
+            client_id: CLIENT_ID,
+            token: refreshToken,
+            token_type_hint: 'refresh_token'
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            }
+          }
+        );
+
+        console.log('✅ Token révoqué avec succès dans Keycloak');
+      } catch (revokeError) {
+        console.error('⚠️ Erreur lors de la révocation du token:', revokeError.message);
+        // On continue quand même la déconnexion locale
+      }
+    }
+
+    // Nettoyer les variables locales
+    accessToken = null;
+    refreshToken = null;
+    deviceFlowState = null;
+
+    console.log('👋 Déconnexion effectuée (locale + révocation Keycloak)');
+    res.json({ success: true, revoked: !!refreshToken });
+
+  } catch (error) {
+    console.error('❌ Erreur lors de la déconnexion:', error.message);
+
+    // Nettoyer quand même les variables locales
+    accessToken = null;
+    refreshToken = null;
+    deviceFlowState = null;
+
+    res.json({ success: true, revoked: false, error: error.message });
+  }
 });
 
 // Ouvrir le navigateur automatiquement
