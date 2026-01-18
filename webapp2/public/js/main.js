@@ -179,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const newNoDevicesBox = document.createElement('div');
                     newNoDevicesBox.className = 'info-box';
                     newNoDevicesBox.innerHTML = `
-                        <div class="info-icon">📵</div>
                         <div class="info-content">
                             <h4>Aucun appareil connecté</h4>
                             <p>Démarrez device-app sur <a href="http://localhost:4000" target="_blank" style="color: #3b82f6; font-weight: 600;">http://localhost:4000</a> et authentifiez-vous pour voir vos appareils ici.</p>
@@ -201,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function generateDevicesHTML(devices) {
             let html = `
-                <h3 class="card-title">📱 Appareils connectés</h3>
+                <h3 class="card-title">Appareils connectés</h3>
                 <p class="card-description" style="margin-bottom: 20px;">
                     Liste des appareils authentifiés via le Device Flow OAuth2 (récupérés depuis Keycloak).
                 </p>
@@ -222,27 +221,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         html += `
                             <div class="device-card" style="background: white; border: 2px solid #10b981; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                                 <h4 style="margin: 0 0 15px 0; color: #047857; display: flex; align-items: center; gap: 10px;">
-                                    <span style="font-size: 1.5rem;">💻</span>
                                     Device #${deviceIndex}
                                 </h4>
 
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f9fafb; padding: 15px; border-radius: 5px;">
                                     <div>
-                                        <p style="margin: 5px 0; color: #374151;"><strong>📍 Adresse IP:</strong> ${session.ipAddress}</p>
-                                        <p style="margin: 5px 0; color: #374151;"><strong>🆔 Session ID:</strong> <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 3px; font-size: 0.85rem; color: #1f2937;">${sessionIdShort}...</code></p>
+                                        <p style="margin: 5px 0; color: #374151;"><strong>Adresse IP:</strong> ${session.ipAddress}</p>
+                                        <p style="margin: 5px 0; color: #374151;"><strong>Session ID:</strong> <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 3px; font-size: 0.85rem; color: #1f2937;">${sessionIdShort}...</code></p>
                                     </div>
                                     <div>
-                                        <p style="margin: 5px 0; color: #374151;"><strong>🕐 Connecté le:</strong> ${startedDate}</p>
-                                        <p style="margin: 5px 0; color: #374151;"><strong>⏰ Dernière activité:</strong> ${lastAccessDate}</p>
+                                        <p style="margin: 5px 0; color: #374151;"><strong>Connecté le:</strong> ${startedDate}</p>
+                                        <p style="margin: 5px 0; color: #374151;"><strong>Dernière activité:</strong> ${lastAccessDate}</p>
                                     </div>
                                 </div>
 
-                                ${expiresDate ? `<p style="margin: 15px 0 5px 0; color: #374151;"><strong>⌛ Expire le:</strong> ${expiresDate}</p>` : ''}
+                                ${expiresDate ? `<p style="margin: 15px 0 5px 0; color: #374151;"><strong>Expire le:</strong> ${expiresDate}</p>` : ''}
 
                                 <div style="margin-top: 15px; padding: 12px; background: #d1fae5; border-radius: 5px; border-left: 4px solid #10b981;">
                                     ${deviceClients.map(client => `
                                         <p style="margin: 0; color: #065f46; font-weight: 600;">
-                                            ✓ ${client.clientName || client.clientId}
+                                            ${client.clientName || client.clientId}
                                             ${client.clientId !== client.clientName ? `<span style="color: #047857; font-size: 0.9rem; font-weight: 400;"> (<code>${client.clientId}</code>)</span>` : ''}
                                         </p>
                                     `).join('')}
@@ -256,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `
                 <div style="margin-top: 20px; padding: 15px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 5px;">
                     <p style="margin: 0; color: #166534;">
-                        <strong>✅ Architecture correcte:</strong> Les devices sont récupérés depuis Keycloak Account API
+                        <strong>Architecture correcte:</strong> Les devices sont récupérés depuis Keycloak Account API
                         (source unique de vérité). WebApp n'interroge jamais device-app directement.
                     </p>
                 </div>
