@@ -1,0 +1,64 @@
+{
+  "name": "oauth2-device-flow-tests",
+  "version": "1.0.0",
+  "description": "Tests complets des use cases pour l'application OAuth2 Device Flow",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:auth": "jest webapp-auth.test.js",
+    "test:pages": "jest webapp-pages.test.js",
+    "test:activation": "jest webapp-device-activation.test.js",
+    "test:device": "jest device-app.test.js",
+    "test:security": "jest security.test.js",
+    "test:verbose": "jest --verbose"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "../coverage",
+    "collectCoverageFrom": [
+      "../../webapp2/**/*.js",
+      "../../device-app/**/*.js",
+      "!../../webapp2/node_modules/**",
+      "!../../device-app/node_modules/**",
+      "!**/views/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 60,
+        "functions": 60,
+        "lines": 60,
+        "statements": 60
+      }
+    },
+    "testMatch": [
+      "**/*.test.js"
+    ],
+    "setupFilesAfterEnv": [
+      "./setup.js"
+    ]
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "openid-client": "^5.6.1",
+    "qrcode": "^1.5.3",
+    "open": "^8.4.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  },
+  "keywords": [
+    "oauth2",
+    "device-flow",
+    "keycloak",
+    "authentication",
+    "testing",
+    "jest"
+  ],
+  "author": "Projet CIS",
+  "license": "MIT"
+}
