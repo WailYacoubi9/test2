@@ -9,6 +9,58 @@
     </title>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @keyframes flash {
+            0% { background-color: #d1fae5; }
+            50% { background-color: #a7f3d0; }
+            100% { background-color: white; }
+        }
+
+        #refresh-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #1e40af;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .auto-refresh-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #166534;
+            font-weight: 500;
+        }
+
+        .auto-refresh-badge .pulse {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
 </head>
 
 <body>
@@ -27,6 +79,17 @@
                     <a href="/logout" class="btn btn-logout">
                         Déconnexion
                     </a>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px; display: flex; gap: 12px; align-items: center;">
+                <div class="auto-refresh-badge">
+                    <span class="pulse"></span>
+                    <span>Actualisation automatique (5s)</span>
+                </div>
+                <div id="refresh-indicator">
+                    <span>🔄</span>
+                    <span>Mise à jour...</span>
                 </div>
             </div>
 
