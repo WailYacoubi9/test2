@@ -9,6 +9,58 @@
     </title>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @keyframes flash {
+            0% { background-color: #d1fae5; }
+            50% { background-color: #a7f3d0; }
+            100% { background-color: white; }
+        }
+
+        #refresh-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #1e40af;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .auto-refresh-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #166534;
+            font-weight: 500;
+        }
+
+        .auto-refresh-badge .pulse {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
 </head>
 
 <body>
@@ -17,7 +69,6 @@
         <main class="container">
             <div class="page-header">
                 <h1 class="page-title">
-                    <span class="icon">📱</span>
                     Mes Appareils
                 </h1>
                 <div style="display: flex; gap: 1rem;">
@@ -30,6 +81,16 @@
                 </div>
             </div>
 
+            <div style="margin-bottom: 20px; display: flex; gap: 12px; align-items: center;">
+                <div class="auto-refresh-badge">
+                    <span class="pulse"></span>
+                    <span>Actualisation automatique (5s)</span>
+                </div>
+                <div id="refresh-indicator">
+                    <span>Mise à jour...</span>
+                </div>
+            </div>
+
             <div class="card">
                 <h3 class="card-title">Gestion des appareils connectés</h3>
                 <p class="card-description">
@@ -38,7 +99,7 @@
 
                 <% if (devices && devices.length > 0) { %>
                     <div class="devices-list">
-                        <h3 class="card-title">📱 Appareils connectés</h3>
+                        <h3 class="card-title">Appareils connectés</h3>
                         <p class="card-description" style="margin-bottom: 20px;">
                             Liste des appareils authentifiés via le Device Flow OAuth2 (récupérés depuis Keycloak).
                         </p>
@@ -52,29 +113,28 @@
                                 <% if (deviceClients.length > 0) { %>
                                 <div class="device-card" style="background: white; border: 2px solid #10b981; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                                     <h4 style="margin: 0 0 15px 0; color: #047857; display: flex; align-items: center; gap: 10px;">
-                                        <span style="font-size: 1.5rem;">💻</span>
                                         Device #<%= (index * device.sessions.length + sessionIndex + 1) %>
                                     </h4>
 
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f9fafb; padding: 15px; border-radius: 5px;">
                                         <div>
-                                            <p style="margin: 5px 0; color: #374151;"><strong>📍 Adresse IP:</strong> <%= session.ipAddress %></p>
-                                            <p style="margin: 5px 0; color: #374151;"><strong>🆔 Session ID:</strong> <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 3px; font-size: 0.85rem; color: #1f2937;"><%= session.id.substring(0, 20) %>...</code></p>
+                                            <p style="margin: 5px 0; color: #374151;"><strong>Adresse IP:</strong> <%= session.ipAddress %></p>
+                                            <p style="margin: 5px 0; color: #374151;"><strong>Session ID:</strong> <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 3px; font-size: 0.85rem; color: #1f2937;"><%= session.id.substring(0, 20) %>...</code></p>
                                         </div>
                                         <div>
-                                            <p style="margin: 5px 0; color: #374151;"><strong>🕐 Connecté le:</strong> <%= new Date(session.started * 1000).toLocaleString('fr-FR') %></p>
-                                            <p style="margin: 5px 0; color: #374151;"><strong>⏰ Dernière activité:</strong> <%= new Date(session.lastAccess * 1000).toLocaleString('fr-FR') %></p>
+                                            <p style="margin: 5px 0; color: #374151;"><strong>Connecté le:</strong> <%= new Date(session.started * 1000).toLocaleString('fr-FR') %></p>
+                                            <p style="margin: 5px 0; color: #374151;"><strong>Dernière activité:</strong> <%= new Date(session.lastAccess * 1000).toLocaleString('fr-FR') %></p>
                                         </div>
                                     </div>
 
                                     <% if (session.expires) { %>
-                                        <p style="margin: 15px 0 5px 0; color: #374151;"><strong>⌛ Expire le:</strong> <%= new Date(session.expires * 1000).toLocaleString('fr-FR') %></p>
+                                        <p style="margin: 15px 0 5px 0; color: #374151;"><strong>Expire le:</strong> <%= new Date(session.expires * 1000).toLocaleString('fr-FR') %></p>
                                     <% } %>
 
                                     <div style="margin-top: 15px; padding: 12px; background: #d1fae5; border-radius: 5px; border-left: 4px solid #10b981;">
                                         <% deviceClients.forEach(client => { %>
                                             <p style="margin: 0; color: #065f46; font-weight: 600;">
-                                                ✓ <%= client.clientName || client.clientId %>
+                                                <%= client.clientName || client.clientId %>
                                                 <% if (client.clientId !== client.clientName) { %>
                                                     <span style="color: #047857; font-size: 0.9rem; font-weight: 400;"> (<code><%= client.clientId %></code>)</span>
                                                 <% } %>
@@ -88,14 +148,13 @@
 
                         <div style="margin-top: 20px; padding: 15px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 5px;">
                             <p style="margin: 0; color: #166534;">
-                                <strong>✅ Architecture correcte:</strong> Les devices sont récupérés depuis Keycloak Account API
+                                <strong>Architecture correcte:</strong> Les devices sont récupérés depuis Keycloak Account API
                                 (source unique de vérité). WebApp n'interroge jamais device-app directement.
                             </p>
                         </div>
                     </div>
                 <% } else { %>
                     <div class="info-box">
-                        <div class="info-icon">📵</div>
                         <div class="info-content">
                             <h4>Aucun appareil connecté</h4>
                             <p>Démarrez device-app sur <a href="http://localhost:4000" target="_blank" style="color: #3b82f6; font-weight: 600;">http://localhost:4000</a> et authentifiez-vous pour voir vos appareils ici.</p>
@@ -108,60 +167,9 @@
 
                 <div style="margin-top: 20px; text-align: center;">
                     <button onclick="location.reload()" class="btn btn-primary">
-                        🔄 Actualiser la liste
+                        Actualiser la liste
                     </button>
                 </div>
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🔗</div>
-                    <h3>Association d'appareils</h3>
-                    <p>Connectez vos appareils embarqués (Raspberry Pi, box TV, etc.) sans clavier via un code
-                        d'appairage</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔍</div>
-                    <h3>Liste des appareils</h3>
-                    <p>Visualisez tous les appareils associés à votre compte avec leur statut et dernière connexion</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">❌</div>
-                    <h3>Révocation</h3>
-                    <p>Révoquez l'accès à distance de n'importe quel appareil en un clic pour renforcer votre sécurité
-                    </p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Historique</h3>
-                    <p>Consultez l'historique des connexions et des activités de chaque appareil</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 class="card-title">Prochaines étapes</h3>
-                <ul class="checklist">
-                    <li class="pending">
-                        <span class="checkbox">☐</span>
-                        Configurer le client "devicecis" dans Keycloak avec Device Authorization Grant
-                    </li>
-                    <li class="pending">
-                        <span class="checkbox">☐</span>
-                        Développer l'application embarquée (Raspberry Pi / PC)
-                    </li>
-                    <li class="pending">
-                        <span class="checkbox">☐</span>
-                        Implémenter l'affichage du QR code pour faciliter l'appairage
-                    </li>
-                    <li class="pending">
-                        <span class="checkbox">☐</span>
-                        Créer l'interface de gestion des appareils sur cette page
-                    </li>
-                    <li class="pending">
-                        <span class="checkbox">☐</span>
-                        Ajouter la fonctionnalité de révocation de tokens
-                    </li>
-                </ul>
             </div>
         </main>
 
